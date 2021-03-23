@@ -37,6 +37,4 @@ public class TestController {
         }
         return new BaseResult<>(200,"成功","failure");
     }
-
-
 }
