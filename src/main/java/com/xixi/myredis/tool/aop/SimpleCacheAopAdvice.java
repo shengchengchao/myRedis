@@ -4,18 +4,16 @@ import com.google.common.collect.Lists;
 import com.xixi.myredis.tool.Constants.CommonConstants;
 import com.xixi.myredis.tool.annotation.RedisParamKey;
 import com.xixi.myredis.tool.annotation.RedisSimpleCache;
-import com.xixi.myredis.tool.base.RedisBase;
 import com.xixi.myredis.tool.series.MyRedisSerializer;
+import com.xixi.myredis.tool.service.RedisBaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.core.ResolvableType;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -32,7 +30,7 @@ import java.util.Map;
 @Aspect
 @Slf4j
 @Component
-public class SimpleCacheAopAdvice extends RedisBase {
+public class SimpleCacheAopAdvice extends RedisBaseService {
 
     public static final String BLAKE = ":";
 

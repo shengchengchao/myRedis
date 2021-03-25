@@ -1,9 +1,9 @@
-package com.xixi.myredis.tool.base;
+package com.xixi.myredis.tool.service;
 
 import com.xixi.myredis.tool.Constants.CommonConstants;
 import com.xixi.myredis.tool.series.MyRedisSerializer;
 import com.xixi.myredis.tool.util.MyFastJsonUtil;
-import com.xixi.myredis.tool.util.RedisUtils;
+import com.xixi.myredis.tool.util.RedisSerialUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * @createTime 2021/3/23
  */
 @Slf4j
-public class RedisBase  {
+public class RedisBaseService {
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -34,7 +34,7 @@ public class RedisBase  {
     public Object read(ProceedingJoinPoint joinPoint, String key, int expire, boolean reCalFlag, MyRedisSerializer myRedisSerializer) throws Throwable {
         //先去redis中去查询
         //使用Pipeline可以批量执行redis命令，防止多个命令建立多个连接
-        byte[] serialKey = RedisUtils.serial(key);
+        byte[] serialKey = RedisSerialUtils.serial(key);
         List redisResult = redisTemplate.executePipelined((RedisCallback) conn -> {
             byte[] bytes = conn.get(serialKey);
             return null;

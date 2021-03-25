@@ -14,7 +14,7 @@ import java.nio.charset.Charset;
  * @createTime 2021/3/24
  */
 
-public class RedisUtils {
+public class RedisSerialUtils {
 
 
     //标志最终存储中，数据为空
@@ -25,39 +25,7 @@ public class RedisUtils {
 
 
 
-    /**
-     * 移除redis中的缓存
-     */
-    public static void destroyRedis(Long key) {
-        redisTemplate.execute((RedisCallback) conn->{
-            conn.del(serial(key));
-            return null;
-        });
-    }
 
-    /**
-     * 移除redis中的缓存
-     */
-    public static void destroyRedis(String key) {
-        redisTemplate.execute((RedisCallback) conn->{
-            conn.del(serial(key));
-            return null;
-        });
-    }
-
-
-    public void destroyRedisPipeLined(Long key, RedisConnection conn) {
-        conn.del(serial(key));
-    }
-
-    /**
-     * 移除redis中的缓存
-     */
-    public static boolean exists(Long key) {
-        return (boolean) redisTemplate.execute((RedisCallback) conn->{
-            return conn.exists(serial(key));
-        });
-    }
 
 
 
