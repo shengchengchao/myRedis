@@ -1,4 +1,4 @@
-package com.xixi.myredis.tool.Constants;
+package com.xixi.myredis.tool.constants;
 
 /**
  * @author shengchengchao

@@ -21,11 +21,12 @@ import java.util.Set;
  * @createTime 2021/3/25
  */
 @Slf4j
-public class setOperate<T> extends RedisBaseOperate<T> {
+public class SetOperate<T> extends RedisBaseOperate<T> {
 
 
     @Autowired
     private RedisTemplate redisTemplate;
+
     /**
      * 将集合放入缓存中 用集合的形式
      * 采用事务的方式 保证原子性
@@ -34,15 +35,15 @@ public class setOperate<T> extends RedisBaseOperate<T> {
      * @param objects
      */
     @Override
-    void setListToRedisSet(String key, Long expire, List<T> objects) {
+    protected void setListToRedisSet(String key, Long expire, List<T> objects) {
         redisTemplate.execute(new RedisCallback() {
             @Override
             public Boolean doInRedis(RedisConnection redisConnection) throws DataAccessException {
-                byte[] byteKey = redisTemplate.getStringSerializer().serialize(key);
+                byte[] byteKey = RedisSerialUtils.serial(key);
                 redisConnection.multi();
                 int i = 0;
                 for (Object obj : objects) {
-                    redisConnection.sAdd(byteKey, MyFastJsonUtil.toJSONString(obj).getBytes());
+                    redisConnection.sAdd(byteKey, RedisSerialUtils.serial(obj));
                     if (i++ == 1000) {
                         redisConnection.exec();
                         redisConnection.multi();
@@ -62,11 +63,11 @@ public class setOperate<T> extends RedisBaseOperate<T> {
      * @param value
      */
     @Override
-    void setToRedisSet(String key, Long expire, String value) {
+    protected void setToRedisSet(String key, Long expire, String value) {
         redisTemplate.execute(new RedisCallback() {
             @Override
             public Boolean doInRedis(RedisConnection redisConnection) throws DataAccessException {
-                byte[] byteKey = redisTemplate.getStringSerializer().serialize(key);
+                byte[] byteKey = RedisSerialUtils.serial(key);
                 redisConnection.sAdd(byteKey, MyFastJsonUtil.toJSONString(value).getBytes());
                 redisConnection.expire(byteKey, expire);
                 return Boolean.TRUE;
@@ -75,18 +76,28 @@ public class setOperate<T> extends RedisBaseOperate<T> {
     }
 
     /**
+     * 在集合中加入数据
+     * @param key
+     * @param values
+     * @return
+     */
+    @Override
+    protected Long sadd(String key, String... values) {
+        return redisTemplate.opsForSet().add(key, values);
+    }
+    /**
      * 向集合中添加元素
      * @param key
      * @param value
      * @return
      */
     @Override
-    void sAdd(String key, String value) {
+    protected  void sAdd(String key, String value) {
         byte[] serialKey = RedisSerialUtils.serial(key);
         redisTemplate.execute(new RedisCallback() {
             @Override
             public Boolean doInRedis(RedisConnection redisConnection) throws DataAccessException {
-                redisConnection.sAdd(serialKey, MyFastJsonUtil.toJSONString(value).getBytes());
+                redisConnection.sAdd(serialKey,RedisSerialUtils.serial(value));
                 return Boolean.TRUE;
             }
         });
@@ -99,7 +110,7 @@ public class setOperate<T> extends RedisBaseOperate<T> {
      * @return
      */
     @Override
-    Boolean sIsMember(String key, String value) {
+    protected  Boolean sIsMember(String key, String value) {
         return redisTemplate.opsForSet().isMember(key,value);
     }
 
@@ -110,7 +121,7 @@ public class setOperate<T> extends RedisBaseOperate<T> {
      * @return
      */
     @Override
-    List<T> getListFromRedisSet(String key, Class<T> targetClass) {
+    protected  List<T> getListFromRedisSet(String key, Class<T> targetClass) {
         List<T> list = new ArrayList<>();
         byte[] serialKey = RedisSerialUtils.serial(key);
         return (List<T>) redisTemplate.execute(new RedisCallback() {
@@ -138,22 +149,23 @@ public class setOperate<T> extends RedisBaseOperate<T> {
      * @return
      */
     @Override
-    Long delListFromRedisSet(String key, List<T> objects) {
+    protected Long delListFromRedisSet(String key, List<T> objects) {
         return (Long) redisTemplate.execute(new RedisCallback<Object>() {
             @Override
             public Object doInRedis(RedisConnection redisConnection) throws DataAccessException {
-                int i=0;
-                int count=0;
+                Long i=0L;
+                Long count=0L;
                 byte[] byteKey = RedisSerialUtils.serial(key);
                 redisConnection.multi();
-                for (T t :objects){
-                    redisConnection.sRem(byteKey,RedisSerialUtils.serial(t));
+                for (Object t :objects){
+                    Long aLong = redisConnection.sRem(byteKey, RedisSerialUtils.serial(t));
                     if(i++ ==1000){
                         redisConnection.exec();
                         redisConnection.multi();
                     }
-                    count++;
+                    count+=1;
                 }
+                redisConnection.exec();
                 return count;
             }
         });
@@ -166,12 +178,12 @@ public class setOperate<T> extends RedisBaseOperate<T> {
      * @return
      */
     @Override
-    Long delFromRedisSet(String key, String value) {
+    protected  Long delFromRedisSet(String key, String value) {
         return (Long) redisTemplate.execute(new RedisCallback<Object>() {
             @Override
             public Object doInRedis(RedisConnection redisConnection) throws DataAccessException {
                 byte[] byteKey = RedisSerialUtils.serial(key);
-               return redisConnection.sRem(byteKey, MyFastJsonUtil.toJSONString(value).getBytes());
+               return redisConnection.sRem(byteKey, RedisSerialUtils.serial(value));
             }
         });
     }
@@ -183,19 +195,10 @@ public class setOperate<T> extends RedisBaseOperate<T> {
      * @return
      */
     @Override
-    Set<String> distinctRandomMembers(String key, Integer count) {
+    protected Set<String> distinctRandomMembers(String key, Integer count) {
         Set<String> listData = redisTemplate.opsForSet().distinctRandomMembers(key, count);
         return listData;
     }
 
-    /**
-     * 在集合中加入数据
-     * @param key
-     * @param values
-     * @return
-     */
-    @Override
-    Long sadd(String key, String... values) {
-        return redisTemplate.opsForSet().add(key, values);
-    }
+
 }

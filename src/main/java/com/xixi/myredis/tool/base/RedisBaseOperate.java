@@ -27,7 +27,7 @@ public abstract class RedisBaseOperate<T> {
      * @param key
      * @return
      */
-    Boolean hasKey(String key) {
+    protected Boolean hasKey(String key) {
         return (Boolean) redisTemplate.execute(new RedisCallback<Boolean>() {
             @Override
             public Boolean doInRedis(RedisConnection connection) {
@@ -42,8 +42,13 @@ public abstract class RedisBaseOperate<T> {
      * @param key
      * @param seconds
      */
-    void expire(String key, long seconds) {
+    protected void expire(String key, long seconds) {
         redisTemplate.execute((RedisCallback) conn -> conn.expire(RedisSerialUtils.serial(key), seconds));
+    }
+
+    protected String get(String key){
+        Object obj = redisTemplate.opsForValue().get(key);
+        return obj.toString();
     }
 
     /**
@@ -53,7 +58,7 @@ public abstract class RedisBaseOperate<T> {
      * @param expire 过期时间
      * @param obj    结果
      */
-    void redisSetWithExpire(String key, Long expire, Object obj) {
+    protected void redisSetWithExpire(String key, Long expire, Object obj) {
 
     }
 
@@ -61,10 +66,9 @@ public abstract class RedisBaseOperate<T> {
      * 字符串格式的set 不带有过期时间
      *
      * @param key
-     * @param field
      * @param value
      */
-    void redisSet(String key, String field, String value) {
+    protected void redisSet(String key, Object value) {
 
     }
 
@@ -75,7 +79,7 @@ public abstract class RedisBaseOperate<T> {
      * @param targetClass 结果的类型
      * @return
      */
-    T getKey(String key, Class targetClass) {
+    protected T getKey(String key, Class targetClass) {
         return null;
     }
 
@@ -85,7 +89,7 @@ public abstract class RedisBaseOperate<T> {
      * @param key
      * @return
      */
-    void delKey(String key) {
+    protected void delKey(String key) {
         redisTemplate.delete(RedisSerialUtils.serial(key));
     }
 
@@ -95,7 +99,7 @@ public abstract class RedisBaseOperate<T> {
      * @param expire
      * @param list
      */
-    void setListToRedis(String key, Long expire, List<T> list) { }
+    protected void setListToRedis(String key, Long expire, List<T> list) { }
 
     /**
      * 取出集合
@@ -103,7 +107,7 @@ public abstract class RedisBaseOperate<T> {
      * @param targetClass
      * @return
      */
-    List<T> getListFromKey(String key, Class<T> targetClass) {
+    protected List<T> getListFromKey(String key, Class<T> targetClass) {
         return null;
     }
 
@@ -115,7 +119,7 @@ public abstract class RedisBaseOperate<T> {
      * @param targetClass
      * @return
      */
-    T getFromHash(String key, String field, Class<Object> targetClass) {
+    protected T getFromHash(String key, String field, Class<Object> targetClass) {
         return null;
     }
 
@@ -127,7 +131,7 @@ public abstract class RedisBaseOperate<T> {
      * @param targetClass
      * @return
      */
-    List<T> getListFromHash(String key, String field, Class<T> targetClass) {
+    protected List<T> getListFromHash(String key, String field, Class<T> targetClass) {
         return null;
     }
 
@@ -137,7 +141,7 @@ public abstract class RedisBaseOperate<T> {
      * @param key
      * @return
      */
-    Map<byte[], byte[]> getAllFromHash(String key) {
+    protected Map<byte[], byte[]> getAllFromHash(String key) {
         return null;
     }
 
@@ -149,7 +153,7 @@ public abstract class RedisBaseOperate<T> {
      * @param fields 域
      * @param values 值
      */
-    void setToHash(String key, String[] fields, String[] values) {
+    protected void setToHash(String key, String[] fields, String[] values) {
 
     }
 
@@ -159,7 +163,7 @@ public abstract class RedisBaseOperate<T> {
      * @param key
      * @param hashes 域-值
      */
-    void setToHash(String key, Map<byte[], byte[]> hashes) {
+    protected void setToHash(String key, Map<byte[], byte[]> hashes) {
 
     }
 
@@ -171,7 +175,7 @@ public abstract class RedisBaseOperate<T> {
      * @param field
      * @param obj
      */
-    void setHashWithExpire(String key, Long expire, Object field, Object obj) {
+    protected void setHashWithExpire(String key, Long expire, Object field, Object obj) {
 
     }
 
@@ -182,7 +186,7 @@ public abstract class RedisBaseOperate<T> {
      * @param field
      * @param list
      */
-    void setListToRedisMap(String key, Long expire, String field, List<T> list) {
+    protected void setListToRedisMap(String key, Long expire, String field, List<T> list) {
 
     }
 
@@ -193,7 +197,7 @@ public abstract class RedisBaseOperate<T> {
      * @param expire
      * @param objects
      */
-    void setListToRedisSet(String key, Long expire, List<T> objects) {
+    protected void setListToRedisSet(String key, Long expire, List<T> objects) {
 
     }
 
@@ -203,7 +207,7 @@ public abstract class RedisBaseOperate<T> {
      * @param expire
      * @param value
      */
-    void setToRedisSet(String key, Long expire, String value) {
+    protected  void setToRedisSet(String key, Long expire, String value) {
 
     }
 
@@ -213,7 +217,7 @@ public abstract class RedisBaseOperate<T> {
      * @param value
      * @return
      */
-    void sAdd(String key, String value) {
+    protected void sAdd(String key, String value) {
     }
 
     /**
@@ -222,7 +226,7 @@ public abstract class RedisBaseOperate<T> {
      * @param value
      * @return
      */
-    Boolean sIsMember(String key, String value) {
+    protected Boolean sIsMember(String key, String value) {
         return null;
     }
 
@@ -232,7 +236,7 @@ public abstract class RedisBaseOperate<T> {
      * @param targetClass
      * @return
      */
-    List<T> getListFromRedisSet(String key, Class<T> targetClass) {
+    protected List<T> getListFromRedisSet(String key, Class<T> targetClass) {
         return null;
     }
 
@@ -242,7 +246,7 @@ public abstract class RedisBaseOperate<T> {
      * @param objects
      * @return
      */
-    Long delListFromRedisSet(String key, List<T> objects) {
+    protected  Long delListFromRedisSet(String key, List<T> objects) {
         return null;
     }
 
@@ -252,7 +256,7 @@ public abstract class RedisBaseOperate<T> {
      * @param value
      * @return
      */
-    Long delFromRedisSet(String key, String value) {
+    protected  Long delFromRedisSet(String key, String value) {
         return null;
     }
 
@@ -262,7 +266,7 @@ public abstract class RedisBaseOperate<T> {
      * @param count
      * @return
      */
-    Set<String> distinctRandomMembers(String key, Integer count) {
+    protected  Set<String> distinctRandomMembers(String key, Integer count) {
         return null;
     }
 
@@ -272,7 +276,7 @@ public abstract class RedisBaseOperate<T> {
      * @param values
      * @return
      */
-    Long sadd(String key, String... values) {
+    protected  Long sadd(String key, String... values) {
         return null;
     }
 
@@ -282,7 +286,7 @@ public abstract class RedisBaseOperate<T> {
      * @param member
      * @return
      */
-    Long reverseRank(String key, String member) {
+    protected  Long reverseRank(String key, String member) {
         return null;
     }
 
@@ -293,7 +297,7 @@ public abstract class RedisBaseOperate<T> {
      * @param score
      * @return
      */
-    Double zIncrByKey(String key, Long member, Double score) {
+    protected  Double zIncrByKey(String key, Long member, Double score) {
         return null;
     }
 
@@ -303,7 +307,7 @@ public abstract class RedisBaseOperate<T> {
      * @param member
      * @return
      */
-    Double zscore(String key, String member) {
+    protected Double zscore(String key, String member) {
         return null;
     }
 
@@ -314,7 +318,7 @@ public abstract class RedisBaseOperate<T> {
      * @param score 分数
      * @return
      */
-    Boolean zadd(String key, String member, double score) {
+    protected  Boolean zadd(String key, String member, double score) {
         return null;
     }
 
@@ -325,7 +329,7 @@ public abstract class RedisBaseOperate<T> {
      * @param end
      * @return
      */
-    List<ZSetOperations.TypedTuple<String>> zRevRangeWithScores(String key, long start, long end) {
+    protected List<ZSetOperations.TypedTuple<String>> zRevRangeWithScores(String key, long start, long end) {
         return null;
     }
 
@@ -336,7 +340,7 @@ public abstract class RedisBaseOperate<T> {
      * @param end
      * @return
      */
-    List<ZSetOperations.TypedTuple<String>> zrangeWithScores(String key, long start, long end) {
+    protected List<ZSetOperations.TypedTuple<String>> zrangeWithScores(String key, long start, long end) {
         return null;
     }
 
@@ -347,7 +351,7 @@ public abstract class RedisBaseOperate<T> {
      * @param end
      * @return
      */
-    Long zRemRangeByRank(String key, long start, long end) {
+    protected  Long zRemRangeByRank(String key, long start, long end) {
         return null;
     }
 
@@ -357,7 +361,7 @@ public abstract class RedisBaseOperate<T> {
      * @param key
      * @param id
      */
-    void zAddValue(String key, Long id) {
+    protected void zAddValue(String key, Long id) {
 
     }
 
@@ -369,7 +373,7 @@ public abstract class RedisBaseOperate<T> {
      * @param endTagFlag 为false的话 要加入一个结束标志
      * @param ids
      */
-    void redisZadd(String key, boolean endTagFlag, List<Long> ids) {
+    protected  void redisZadd(String key, boolean endTagFlag, List<Long> ids) {
 
     }
 
@@ -379,7 +383,7 @@ public abstract class RedisBaseOperate<T> {
      * @param key
      * @param id
      */
-    void redisZaddIfExist(String key, long id,Long score) {
+    protected  void redisZaddIfExist(String key, long id,Long score) {
 
     }
 
@@ -392,7 +396,7 @@ public abstract class RedisBaseOperate<T> {
      * @param count
      * @return
      */
-    List<Integer> redisZRevRangeByScore(String key, double min, double max, long offset, long count) {
+    protected  List<Integer> redisZRevRangeByScore(String key, double min, double max, long offset, long count) {
         return null;
     }
 

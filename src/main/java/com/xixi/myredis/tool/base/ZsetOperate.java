@@ -9,6 +9,7 @@ import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 
 import java.util.ArrayList;
@@ -21,10 +22,12 @@ import java.util.Set;
  * @Description
  * @createTime 2021/3/25
  */
-public abstract class zsetOperate<T> extends RedisBaseOperate<T> {
+public abstract class ZsetOperate<T> extends RedisBaseOperate<T> {
 
     @Autowired
     private RedisTemplate redisTemplate;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
     /**
      * 返回有序集 key 中成员 member 的排名 逆序
      * @param key
@@ -32,7 +35,7 @@ public abstract class zsetOperate<T> extends RedisBaseOperate<T> {
      * @return
      */
     @Override
-    Long reverseRank(String key, String member) {
+    protected  Long reverseRank(String key, String member) {
 
         return redisTemplate.opsForZSet().reverseRank(key,member);
     }
@@ -44,8 +47,7 @@ public abstract class zsetOperate<T> extends RedisBaseOperate<T> {
      * @param score
      * @return
      */
-    @Override
-    Double zIncrByKey(String key, Long member, Double score) {
+    protected Double zIncrByKey(String key, String member, Double score) {
         return redisTemplate.opsForZSet().incrementScore(key, member, score);
     }
 
@@ -56,7 +58,7 @@ public abstract class zsetOperate<T> extends RedisBaseOperate<T> {
      * @return
      */
     @Override
-    Double zscore(String key, String member) {
+    protected Double zscore(String key, String member) {
         return redisTemplate.opsForZSet().score(key,member);
     }
 
@@ -68,7 +70,7 @@ public abstract class zsetOperate<T> extends RedisBaseOperate<T> {
      * @return
      */
     @Override
-    Boolean zadd(String key, String member, double score) {
+    protected Boolean zadd(String key, String member, double score) {
         return redisTemplate.opsForZSet().add(key, member, score);
     }
 
@@ -80,7 +82,7 @@ public abstract class zsetOperate<T> extends RedisBaseOperate<T> {
      * @return
      */
     @Override
-    List<ZSetOperations.TypedTuple<String>> zRevRangeWithScores(String key, long start, long end) {
+    protected  List<ZSetOperations.TypedTuple<String>> zRevRangeWithScores(String key, long start, long end) {
 
         Set<ZSetOperations.TypedTuple<String>> set = redisTemplate.opsForZSet().reverseRangeByScore(key, start, end);
         return new ArrayList<>(set);
@@ -94,7 +96,7 @@ public abstract class zsetOperate<T> extends RedisBaseOperate<T> {
      * @return
      */
     @Override
-    List<ZSetOperations.TypedTuple<String>> zrangeWithScores(String key, long start, long end) {
+    protected  List<ZSetOperations.TypedTuple<String>> zrangeWithScores(String key, long start, long end) {
         Set<ZSetOperations.TypedTuple<String>> set = redisTemplate.opsForZSet().rangeWithScores(key, start, end);
         return new ArrayList<>(set);
     }
@@ -107,7 +109,7 @@ public abstract class zsetOperate<T> extends RedisBaseOperate<T> {
      * @return
      */
     @Override
-    Long zRemRangeByRank(String key, long start, long end) {
+    protected   Long zRemRangeByRank(String key, long start, long end) {
         return redisTemplate.opsForZSet().removeRangeByScore(key, start, end);
     }
 
@@ -117,9 +119,8 @@ public abstract class zsetOperate<T> extends RedisBaseOperate<T> {
      * @param key
      * @param id
      */
-    @Override
-    void zAddValue(String key, Long id) {
-        redisTemplate.opsForZSet().add(key, id, id);
+    protected void zAddValue(String key, String id) {
+        redisTemplate.opsForZSet().add(key, id, Double.valueOf(id));
     }
 
 
@@ -131,14 +132,14 @@ public abstract class zsetOperate<T> extends RedisBaseOperate<T> {
      * @param ids
      */
     @Override
-    void redisZadd(String key, boolean endTagFlag, List<Long> ids) {
+    protected void redisZadd(String key, boolean endTagFlag, List<Long> ids) {
         redisTemplate.execute(new RedisCallback() {
             @Override
             public Boolean doInRedis(RedisConnection redisConnection) throws DataAccessException {
                 byte[] byteKey = redisTemplate.getStringSerializer().serialize(key);
                 Set<RedisZSetCommands.Tuple> tupleSet = new HashSet<>();
                 for (long id : ids) {
-                    tupleSet.add(new DefaultTuple(RedisSerialUtils.serial(key), (double) id));
+                    tupleSet.add(new DefaultTuple(RedisSerialUtils.serial(id), (double) id));
                 }
                 //加上-1结尾标志
                 if (endTagFlag) {
@@ -157,7 +158,7 @@ public abstract class zsetOperate<T> extends RedisBaseOperate<T> {
      * @param id
      */
     @Override
-    void redisZaddIfExist(String key, long id,Long score) {
+    protected void redisZaddIfExist(String key, long id,Long score) {
         byte[] valueByte = RedisSerialUtils.serial(score);
         byte[] scoreByte = RedisSerialUtils.serial(score);
         byte[] keyByte = RedisSerialUtils.serial(key);
@@ -178,7 +179,7 @@ public abstract class zsetOperate<T> extends RedisBaseOperate<T> {
      * @return
      */
     @Override
-    List<Integer> redisZRevRangeByScore(String key, double min, double max, long offset, long count) {
+    protected List<Integer> redisZRevRangeByScore(String key, double min, double max, long offset, long count) {
         Set<Integer> set = redisTemplate.opsForZSet().reverseRangeByScore(key, min, max, offset, count);
         return new ArrayList<>(set);
     }

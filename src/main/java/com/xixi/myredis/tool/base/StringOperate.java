@@ -39,7 +39,7 @@ public abstract class StringOperate<T>  extends RedisBaseOperate<T>{
             @Override
             public Boolean doInRedis(RedisConnection connection) {
                 byte[] serialValue = RedisSerialUtils.serial(MyFastJsonUtil.toJSONString(obj));
-                connection.set(serialKey,serialKey);
+                connection.set(serialKey,serialValue);
                 connection.expire(serialKey,expire);
                 return true;
             }
@@ -54,14 +54,14 @@ public abstract class StringOperate<T>  extends RedisBaseOperate<T>{
      * @param value
      */
     @Override
-    public void redisSet(String key, String field, String value) {
+    public void redisSet(String key, Object value) {
         byte[] serialKey = RedisSerialUtils.serial(key);
         log.info("需要设置的参数 {}",serialKey);
         redisTemplate.execute(new RedisCallback<Boolean>() {
             @Override
             public Boolean doInRedis(RedisConnection connection) {
                 byte[] serialValue = RedisSerialUtils.serial(MyFastJsonUtil.toJSONString(value));
-                connection.set(serialKey,serialKey);
+                connection.set(serialKey,serialValue);
                 return true;
             }
         });
@@ -75,7 +75,7 @@ public abstract class StringOperate<T>  extends RedisBaseOperate<T>{
      * @return
      */
     @Override
-    T getKey(String key, Class targetClass) {
+    protected T getKey(String key, Class targetClass) {
         byte[] serialKey = RedisSerialUtils.serial(key);
         log.info("需要取出的参数 {}",serialKey);
         return (T) redisTemplate.execute(new RedisCallback<Object>() {
@@ -93,6 +93,7 @@ public abstract class StringOperate<T>  extends RedisBaseOperate<T>{
 
 
 
+
     /**
      * 将集合放入缓存中
      * @param key
@@ -100,7 +101,7 @@ public abstract class StringOperate<T>  extends RedisBaseOperate<T>{
      * @param list
      */
     @Override
-    void setListToRedis(String key, Long expire, List<T> list) {
+    protected void setListToRedis(String key, Long expire, List<T> list) {
         if(CollectionUtils.isEmpty(list)){
             return ;
         }
@@ -114,7 +115,7 @@ public abstract class StringOperate<T>  extends RedisBaseOperate<T>{
      * @return
      */
     @Override
-    List<T> getListFromKey(String key, Class<T> targetClass) {
+    protected List<T> getListFromKey(String key, Class<T> targetClass) {
         byte[] serialKey = RedisSerialUtils.serial(key);
         log.info("需要取出的参数 {}",serialKey);
         return (List) redisTemplate.execute(new RedisCallback<List>() {

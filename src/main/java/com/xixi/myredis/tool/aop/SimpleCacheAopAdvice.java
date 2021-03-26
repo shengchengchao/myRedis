@@ -1,7 +1,7 @@
 package com.xixi.myredis.tool.aop;
 
 import com.google.common.collect.Lists;
-import com.xixi.myredis.tool.Constants.CommonConstants;
+import com.xixi.myredis.tool.constants.CommonConstants;
 import com.xixi.myredis.tool.annotation.RedisParamKey;
 import com.xixi.myredis.tool.annotation.RedisSimpleCache;
 import com.xixi.myredis.tool.series.MyRedisSerializer;

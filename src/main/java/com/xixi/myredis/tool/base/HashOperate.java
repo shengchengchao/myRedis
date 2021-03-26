@@ -35,18 +35,14 @@ public abstract class HashOperate<T> extends RedisBaseOperate<T> {
      * @return
      */
     @Override
-    T getFromHash(String key, String field, Class targetClass) {
+    protected String getFromHash(String key, String field, Class targetClass) {
 
-        return (T)redisTemplate.execute(new RedisCallback<Object>() {
-            byte[] serialKey = RedisSerialUtils.serial(key);
-            byte[] serialField = RedisSerialUtils.serial(key);
-            @Override
-            public Object doInRedis(RedisConnection connection) {
-                byte[] bytes = connection.hGet(serialKey, serialField);
-                Object obj = MyFastJsonUtil.parseObject(new String(bytes), targetClass);
-                return obj;
-            }
-        });
+        Object o = redisTemplate.opsForHash().get(key, field);
+        if(o!=null){
+            return o.toString();
+
+        }
+        return null;
     }
 
     /**
@@ -59,7 +55,7 @@ public abstract class HashOperate<T> extends RedisBaseOperate<T> {
      */
 
     @Override
-    List<T> getListFromHash(String key, String field, Class targetClass) {
+    protected List<T> getListFromHash(String key, String field, Class targetClass) {
 
         return (List) redisTemplate.execute(new RedisCallback<List>() {
             byte[] serialKey = RedisSerialUtils.serial(key);
@@ -83,7 +79,7 @@ public abstract class HashOperate<T> extends RedisBaseOperate<T> {
      * @return
      */
     @Override
-    Map<byte[], byte[]> getAllFromHash(String key) {
+    protected  Map<byte[], byte[]> getAllFromHash(String key) {
         return (Map<byte[], byte[]>) redisTemplate.execute(new RedisCallback<Map>() {
             byte[] serialKey = RedisSerialUtils.serial(key);
 
@@ -105,7 +101,7 @@ public abstract class HashOperate<T> extends RedisBaseOperate<T> {
      * @param values 值
      */
     @Override
-    void setToHash(String key, String[] fields, String[] values) {
+    protected void setToHash(String key, String[] fields, String[] values) {
         Map<byte[], byte[]> hashMap = new HashMap<>();
         for (int i = 0;i<fields.length;i++){
             hashMap.put(RedisSerialUtils.serial(fields[i]),RedisSerialUtils.serial(values[i]));
@@ -120,7 +116,7 @@ public abstract class HashOperate<T> extends RedisBaseOperate<T> {
      * @param hashes 域-值
      */
     @Override
-    void setToHash(String key, Map<byte[], byte[]> hashes) {
+    protected void setToHash(String key, Map<byte[], byte[]> hashes) {
         redisTemplate.execute(new RedisCallback() {
             byte[] serialKey = RedisSerialUtils.serial(key);
             @Override
@@ -140,11 +136,11 @@ public abstract class HashOperate<T> extends RedisBaseOperate<T> {
      * @param obj
      */
     @Override
-    void setHashWithExpire(String key, Long expire, Object field, Object obj) {
+    protected  void setHashWithExpire(String key, Long expire, Object field, Object obj) {
         redisTemplate.execute(new RedisCallback() {
             byte[] serialKey = RedisSerialUtils.serial(key);
             byte[] serialField = RedisSerialUtils.serial(field);
-            byte[] serialObj =  MyFastJsonUtil.toJSONString(obj).getBytes();
+            byte[] serialObj =  RedisSerialUtils.serial(obj);
             @Override
             public Boolean doInRedis(RedisConnection redisConnection) throws DataAccessException {
                 redisConnection.hSet(serialKey,serialField,serialObj);
@@ -162,7 +158,7 @@ public abstract class HashOperate<T> extends RedisBaseOperate<T> {
      * @param list
      */
     @Override
-    void setListToRedisMap(String key, Long expire, String field, List<T> list) {
+    protected  void setListToRedisMap(String key, Long expire, String field, List<T> list) {
         if(CollectionUtils.isEmpty(list)){
             return;
         }

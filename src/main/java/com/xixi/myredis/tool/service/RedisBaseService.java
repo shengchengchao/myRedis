@@ -1,6 +1,6 @@
 package com.xixi.myredis.tool.service;
 
-import com.xixi.myredis.tool.Constants.CommonConstants;
+import com.xixi.myredis.tool.constants.CommonConstants;
 import com.xixi.myredis.tool.series.MyRedisSerializer;
 import com.xixi.myredis.tool.util.MyFastJsonUtil;
 import com.xixi.myredis.tool.util.RedisSerialUtils;
