@@ -2,7 +2,9 @@ package com.xixi.myredis.tool.rest;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xixi.myredis.tool.base.BaseResult;
+import com.xixi.myredis.tool.base.TupleObject;
 import com.xixi.myredis.tool.service.TestService;
+import com.xixi.myredis.tool.test.ListPageTest;
 import com.xixi.myredis.tool.util.MyFastJsonUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,12 +28,16 @@ import java.util.Map;
 public class TestController {
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private ListPageTest listPageTest;
 
 
 
-
-
+    @GetMapping("/test")
+    @ResponseBody
+    public void test(){
+        List<TupleObject<String>> list = listPageTest.list("zset",2L, 8L);
+        System.out.println(list.toString());
+    }
 
 
 

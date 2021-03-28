@@ -383,7 +383,7 @@ public abstract class RedisBaseOperate<T> {
      * @param key
      * @param id
      */
-    protected  void redisZaddIfExist(String key, long id,Long score) {
+    protected  void redisZaddIfExist(String key, Long id,Long score) {
 
     }
 
