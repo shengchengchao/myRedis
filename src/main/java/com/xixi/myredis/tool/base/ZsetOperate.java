@@ -158,8 +158,8 @@ public abstract class ZsetOperate<T> extends RedisBaseOperate<T> {
      * @param id
      */
     @Override
-    protected void redisZaddIfExist(String key, long id,Long score) {
-        byte[] valueByte = RedisSerialUtils.serial(score);
+    protected void redisZaddIfExist(String key, Long id,Long score) {
+        byte[] valueByte = RedisSerialUtils.serial(id);
         byte[] scoreByte = RedisSerialUtils.serial(score);
         byte[] keyByte = RedisSerialUtils.serial(key);
         redisTemplate.execute((RedisCallback) conn->{
