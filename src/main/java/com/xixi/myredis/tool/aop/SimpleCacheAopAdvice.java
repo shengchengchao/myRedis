@@ -21,6 +21,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * @author shengchengchao
@@ -34,10 +35,15 @@ public class SimpleCacheAopAdvice extends RedisBaseService {
 
     public static final String BLAKE = ":";
 
+    public Random random;
 
     @Pointcut(value = "@annotation(com.xixi.myredis.tool.annotation.RedisSimpleCache)")
     public void test(){
 
+    }
+
+    public SimpleCacheAopAdvice() {
+        this.random = new Random();
     }
 
     /**
@@ -99,7 +105,7 @@ public class SimpleCacheAopAdvice extends RedisBaseService {
         log.info("查询的key为 {}",sb.toString());
 
         try {
-            return read(joinPoint,sb.toString(),expire,reCalFlag,myRedisSerializer);
+            return read(joinPoint,sb.toString(),expire+random.nextInt(1000),reCalFlag,myRedisSerializer);
         } catch (Exception e) {
             log.error("查询 key：{} ,出错了",sb.toString(),e.getMessage());
             return joinPoint.proceed();
