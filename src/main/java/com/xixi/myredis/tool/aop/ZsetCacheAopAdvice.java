@@ -21,6 +21,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * @author shengchengchao
@@ -31,6 +32,12 @@ import java.util.Map;
 @Component
 @Aspect
 public class ZsetCacheAopAdvice  extends RedisZsetService {
+
+    private Random random;
+
+    public ZsetCacheAopAdvice() {
+        this.random = new Random();
+    }
 
     public static final String BLAKE = ":";
 
@@ -78,7 +85,7 @@ public class ZsetCacheAopAdvice  extends RedisZsetService {
         }
         log.info("查询的key为 {}",sb.toString());
         try {
-            return read(joinPoint,sb.toString(),expire,myRedisSerializer,paramMap);
+            return read(joinPoint,sb.toString(),expire+random.nextInt(1000),myRedisSerializer,paramMap);
         }catch (Exception e){
             log.error("出现问题",e);
             return joinPoint.proceed();
