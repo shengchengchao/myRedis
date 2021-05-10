@@ -55,7 +55,7 @@ public class RequestProtectAopAdvice {
         String changeKey = MD5Util.md532(key);
         Object obj = redisTemplate.opsForValue().get(PROTECT+changeKey);
         if(obj==null){
-            //判断是否要开启保护 防止缓存击穿
+            //判断是否要开启保护 防止缓存穿透
             redisTemplate.opsForValue().set(PROTECT+changeKey,"");
             redisTemplate.expire(PROTECT+changeKey, 1, TimeUnit.SECONDS);
             //保证原子性

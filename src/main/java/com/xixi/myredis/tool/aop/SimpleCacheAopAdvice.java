@@ -50,7 +50,7 @@ public class SimpleCacheAopAdvice extends RedisBaseService {
      * 需要注意的问题 为了防止缓存雪崩，在设置过期时间的时候，要添加一个随机时间
      * 为了防止 两个请求参数相同，都没有在redis中找到数据，同时去执行查询，
      * 在查询之后，需要再次判断是否存在缓存 存在就不将数据加入缓存中
-     * 后续需要考虑为了防止缓存穿透的问题 要进行一个setnx的 互斥锁
+     * 后续需要考虑为了防止缓存击穿的问题 要进行一个setnx的 互斥锁
      * @param joinPoint
      * @return
      * @throws Throwable
